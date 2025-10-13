@@ -1,5 +1,6 @@
 import winston from 'winston';
 import expressWinston from 'express-winston';
+
 import config from '../config';
 
 export const requestLogger = expressWinston.logger({

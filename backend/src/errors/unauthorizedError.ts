@@ -1,7 +1,9 @@
 import AppError from './appError';
 
-export class UnauthorizedError extends AppError {
+class UnauthorizedError extends AppError {
   constructor(message: string = 'Unauthorized') {
     super(message, 401);
   }
 }
+
+export default UnauthorizedError;

@@ -1,11 +1,11 @@
-import 'dotenv/config';
-import config from './config';
-
 import cors from 'cors';
 import path from 'path';
 import express from 'express';
 import mongoose from 'mongoose';
 import { errors } from 'celebrate';
+
+import 'dotenv/config';
+import config from './config';
 
 import orderRouter from './routes/order';
 import productRouter from './routes/product';

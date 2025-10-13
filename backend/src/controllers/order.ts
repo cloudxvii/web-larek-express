@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from 'express';
 
 import product, { IProduct } from '../models/product';
 
-import { BadRequestError } from '../errors/badRequestError';
-import { InternalServerError } from '../errors/internalServerError';
+import BadRequestError from '../errors/badRequestError';
+import InternalServerError from '../errors/internalServerError';
 
 interface IOrderResponse {
   id: string,
@@ -16,7 +16,7 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export const postOrder = async (req: Request, res: Response, next: NextFunction) => {
+const postOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       payment, email, phone, address, total, items,
@@ -71,3 +71,5 @@ export const postOrder = async (req: Request, res: Response, next: NextFunction)
     return next(new InternalServerError());
   }
 };
+
+export default postOrder;

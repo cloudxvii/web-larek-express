@@ -1,6 +1,6 @@
 import { Joi } from 'celebrate';
 
-export const productSchema = Joi.object({
+const productSchema = Joi.object({
   description: Joi.string().required().messages({
     'string.empty': 'Description is required',
     'any.required': 'Description is required',
@@ -19,3 +19,5 @@ export const productSchema = Joi.object({
   }),
   price: Joi.number().allow(null).optional(),
 });
+
+export default productSchema;

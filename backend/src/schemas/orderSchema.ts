@@ -1,6 +1,6 @@
 import { Joi } from 'celebrate';
 
-export const orderSchema = Joi.object({
+const orderSchema = Joi.object({
   payment: Joi.string().valid('card', 'online').required().messages({
     'any.only': 'Payment must be "card" or "online"',
     'any.required': 'Payment is required',
@@ -28,3 +28,5 @@ export const orderSchema = Joi.object({
       'string.length': 'Product ID must be 24 characters long',
     }),
 });
+
+export default orderSchema;
