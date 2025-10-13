@@ -1,9 +1,7 @@
 import AppError from './appError';
 
-class NotFoundError extends AppError {
+export class NotFoundError extends AppError {
   constructor(message: string = 'Not Found') {
     super(message, 404);
   }
 }
-
-export default NotFoundError;

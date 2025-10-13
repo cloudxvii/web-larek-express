@@ -1,59 +1,56 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import Product, { IProduct } from '../models/product';
 
-export const getProducts = (_req: Request, res: Response) => {
+import { ConflictError } from '../errors/conflictError';
+import { BadRequestError } from '../errors/badRequestError';
+import { InternalServerError } from '../errors/internalServerError';
+
+export const getProducts = (_req: Request, res: Response, next: NextFunction) => {
   Product.find({})
     .then((products: IProduct[]) => res.send({
       items: products,
       total: products.length,
     }))
-    .catch((err: any) => res.status(400).json(`Error: ${err}`));
+    .catch((_err: any) => {
+      next(new InternalServerError('Error while receiving products'));
+    });
 };
 
-export const postProducts = async (req: Request, res: Response) => {
+export const postProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const productJSON = {
-      description: 'Будет стоять над душой и не давать прокрастинировать.',
-      image: {
-        fileName: '/images/Asterisk_2.png',
-        originalName: 'Asterisk_2.png',
-      },
-      title: 'Мамка-таймер',
-      category: 'софт-скил',
-      price: null,
-    };
+    const {
+      title, description, image, category, price,
+    } = req.body;
 
-    const productData: IProduct = req.body.description ? req.body : productJSON;
-
-    if (!productData.title
-      || !productData.description
-      || !productData.image
-      || !productData.category) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing product fields',
-      });
+    if (!title || !description || !image || !category) {
+      return next(new BadRequestError('Missing product fields'));
     }
 
-    if (!productData.image.fileName || !productData.image.originalName) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing image fields',
-      });
+    if (!image.fileName || !image.originalName) {
+      return next(new BadRequestError('Missing image fields'));
     }
 
-    const newProduct: IProduct = await Product.create(productData);
+    const newProduct = await Product.create({
+      title,
+      description,
+      image,
+      category,
+      price,
+    });
 
     return res.status(201).json({
+      ...newProduct.toObject(),
       success: true,
       message: 'Product created successfully',
-      data: newProduct,
     });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return next(new ConflictError('A product with this name already exists'));
+    }
+    if (error.name === 'ValidationError') {
+      return next(new BadRequestError('Validation error'));
+    }
+    return next(new InternalServerError());
   }
 };
