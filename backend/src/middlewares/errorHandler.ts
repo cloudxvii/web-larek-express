@@ -1,10 +1,8 @@
-import { Error as MongooseError } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 
-import AppError from '../errors/appError';
-
-interface ErrorResponse {
-  message: string,
+interface ClientError {
+  statusCode?: number;
+  message: string;
 }
 
 const errorHandler = (
@@ -13,21 +11,13 @@ const errorHandler = (
   res: Response,
   _next: NextFunction,
 ) => {
-  let statusCode = 500;
-  let message = 'Internal Server Error';
+  const clientError = err as ClientError;
 
-  if (err instanceof AppError) {
-    statusCode = err.statusCode;
-    message = err.message;
-  } else if (err instanceof MongooseError.ValidationError) {
-    statusCode = 400;
-    message = 'Data validation error';
-  } else if (err instanceof MongooseError.CastError) {
-    statusCode = 400;
-    message = 'Incorrect data format';
-  }
+  const statusCode = clientError.statusCode || 500;
+  const message = clientError.message || 'Internal Server Error';
 
-  const errorResponse: ErrorResponse = { message };
+  const errorResponse = { message };
+
   res.status(statusCode).json(errorResponse);
 };
 
